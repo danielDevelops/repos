@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>danielDevelops.Context</AssemblyName>
+    <RootNamespace>danielDevelops.Context</RootNamespace>
+    <PackageId>danielDevelops.Context</PackageId>
+    <Authors>danielDevelops.Context</Authors>
+    <Product>danielDevelops.Context</Product>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EFCore.BulkExtensions" Version="2.6.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.6" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CommonInterfaces\danielDevelops.CommonInterfaces.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>danielDevelops.Cache</RootNamespace>
+    <AssemblyName>danielDevelops.Cache</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DeepCopy.Expression" Version="1.2.1" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CommonInterfaces\danielDevelops.CommonInterfaces.csproj" />
+  </ItemGroup>
+
+</Project>
