@@ -69,14 +69,4 @@ namespace danielDevelops.Infrastructure
             return connectionStringFromFile;
         }
     }
-    //internal class CustomDbOptions : DbContextOptions
-    //{
-    //    public override Type ContextType => throw new NotImplementedException();
-
-    //    public override DbContextOptions WithExtension<TExtension>([NotNullAttribute] TExtension extension)
-    //    {
-    //        throw new NotImplementedException();
-    //    }
-    //}
-
 }
