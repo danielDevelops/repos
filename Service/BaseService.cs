@@ -85,7 +85,7 @@ namespace danielDevelops.Service
         /// Calls a reload of the data for the Cache for based on the current context.
         /// </summary>
         /// <returns>An awaitable task</returns>
-        protected async Task ReloadCacheAsync() 
+        protected virtual async Task ReloadCacheAsync() 
             => await cacheContainer.ReloadCacheAsync(Context, cacheName);
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace danielDevelops.Service
         /// <param name="reloadCache">Call Cache reload for the Current Cache.</param>
         /// <param name="reloadMethodOverload">Overload for the Reload Method, if reloading cache from another cache.</param>
         /// <returns>SqlResult with the data being added to the SqlResult.</returns>
-        protected async Task<SqlResult<TT>> SaveAsync<TT>(TT value = default, bool reloadCache = false, Func<Task> reloadMethodOverload = null) 
+        protected async Task<SqlResult<TT>> SaveAsync<TT>(TT value = default, bool reloadCache = false) 
         {
             try
             {
@@ -117,10 +117,7 @@ namespace danielDevelops.Service
                 if (reloadCache)
                 {
                     Repo.DetachT();
-                    if (reloadMethodOverload == null)
-                        await ReloadCacheAsync();
-                    else
-                        await reloadMethodOverload();
+                    await ReloadCacheAsync();
                 }
                 return new SqlResult<TT>(value, "Save completed successfully", Status.Success);
             }
