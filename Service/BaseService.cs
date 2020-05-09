@@ -2,6 +2,7 @@
 using danielDevelops.CommonInterfaces;
 using danielDevelops.CommonInterfaces.Infrastructure;
 using danielDevelops.Infrastructure;
+using Microsoft.EntityFrameworkCore.Query;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,28 +21,28 @@ namespace danielDevelops.Service
     {
         protected readonly ICustomContext Context;
         protected readonly bool IsSharedContext = false;
-        private readonly ICacheContainer cacheContainer;
+        protected readonly ICacheContainer CacheContainer;
         private readonly Expression<Func<T, bool>> cacheLoadFilter;
-        private readonly IEnumerable<Expression<Func<T,object>>> includePropertiesInCache;
+        private readonly Func<IQueryable<T>, IIncludableQueryable<T, object>> includePropertiesInCache;
         private readonly int cacheTimeoutInMinutes;
-        protected readonly string CurrentUserName;
+        protected readonly string CurrentUsername;
         protected readonly IGenericRepository<T> Repo;
         private readonly string cacheName = typeof(T).FullName;
         private readonly Func<ICustomContext, Task<IEnumerable<T>>> reloadMethod;
 
         protected BaseService(IServiceConstructor<T> constructor)
         {
-            CurrentUserName = constructor.Username;
+            CurrentUsername = constructor.Username;
             Context = constructor.Context;
             IsSharedContext = constructor.IsSharedContext;
-            Repo = new GenericRepository<T>(this.Context, CurrentUserName);
-            cacheContainer = constructor.CacheContainer;
+            Repo = new GenericRepository<T>(this.Context, CurrentUsername);
+            CacheContainer = constructor.CacheContainer;
             cacheLoadFilter = constructor.CacheLoadFilter;
             cacheTimeoutInMinutes = constructor.CacheTimoutInMinutes;
             includePropertiesInCache = constructor.IncludePropertiesInCache;
             reloadMethod = async (context) =>
             {
-                IGenericRepository<T> repo = new GenericRepository<T>(context, CurrentUserName);
+                IGenericRepository<T> repo = new GenericRepository<T>(context, "System");
                 
                 var data = await repo.GetAsync(cacheLoadFilter, includePropertiesInCache);
                 var detachedData = data.Select(t => repo.CreateDetachedEntity(t)).ToList();
@@ -59,14 +60,14 @@ namespace danielDevelops.Service
             Func<T, bool> queryFilter = null,
             bool forceImmediateReload = false)
         {
-            var cachedData = await cacheContainer.GetAndLoadCacheItemAsync(this.Context,
+            var cachedData = await CacheContainer.GetAndLoadCacheItemAsync(this.Context,
                 cacheName,
                 reloadMethod,
                 forceImmediateReload,
                 cacheTimeoutInMinutes);
             if (queryFilter == null)
-                return cachedData;
-            return cachedData.Where(queryFilter);
+                return cachedData.Copy();
+            return cachedData.Where(queryFilter).ToList().Copy();
         }
 
         /// <summary>
@@ -86,7 +87,7 @@ namespace danielDevelops.Service
         /// </summary>
         /// <returns>An awaitable task</returns>
         protected virtual async Task ReloadCacheAsync() 
-            => await cacheContainer.ReloadCacheAsync(Context, cacheName);
+            => await CacheContainer.ReloadCacheAsync(Context, cacheName);
 
         /// <summary>
         /// Create a list of parameters based on T.  This is used to create a list of properties that have changed.
@@ -138,11 +139,25 @@ namespace danielDevelops.Service
         }
     }
 
-    public class SqlResult<T>
+    public class SqlResult
     {
-        public T ReturnedData { get; set; }
+        public SqlResult()
+        {
+
+        }
+        public SqlResult(string message, Status status)
+        {
+            Message = message;
+            Result = status;
+        }
         public string Message { get; set; }
         public Status Result { get; set; }
+    }
+
+    public class SqlResult<T> : SqlResult
+    {
+        public T ReturnedData { get; set; }
+        
 
         public SqlResult()
         {
@@ -150,10 +165,9 @@ namespace danielDevelops.Service
         }
 
         public SqlResult(T data, string message, Status status)
+            : base(message, status)
         {
             ReturnedData = data;
-            Message = message;
-            Result = status;
         }
     }
 }

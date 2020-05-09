@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.Query;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
@@ -15,14 +16,14 @@ namespace danielDevelops.CommonInterfaces.Infrastructure
         Task<T> GetByIDAsync(object id);
         Task<IEnumerable<T>> GetAsync(
             Expression<Func<T, bool>> filter = null,
-            IEnumerable<Expression<Func<T, object>>> includeProperties = null, 
+            Func<IQueryable<T>, IIncludableQueryable<T, object>> includeProperties = null, 
             Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, 
             int skip = 0, 
             int? take = default(int?), 
             bool disableCacheForQueryPlan = false);
         IQueryable<T> GetQueryable(
             Expression<Func<T, bool>> filter = null,
-            IEnumerable<Expression<Func<T, object>>> includeProperties = null, 
+            Func<IQueryable<T>, IIncludableQueryable<T, object>> includeProperties = null, 
             bool disableCacheForQueryPlan = false);
 
         void Update(T entity, params Expression<Func<T, object>>[] changedProperties);

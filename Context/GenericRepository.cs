@@ -1,6 +1,7 @@
 ﻿using danielDevelops.CommonInterfaces;
 using danielDevelops.CommonInterfaces.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -45,8 +46,8 @@ namespace danielDevelops.Infrastructure
             return await dbSet.FindAsync(id);
         }
         public async Task<IEnumerable<T>> GetAsync(
-            Expression<Func<T, bool>> filter = null, 
-            IEnumerable<Expression<Func<T,object>>> includeProperties = null, 
+            Expression<Func<T, bool>> filter = null,
+            Func<IQueryable<T>, IIncludableQueryable<T, object>> includeProperties = null, 
             Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, 
             int skip = 0, 
             int? take = null, 
@@ -59,17 +60,15 @@ namespace danielDevelops.Infrastructure
         }
        
         public IQueryable<T> GetQueryable(
-            Expression<Func<T, bool>> filter = null, 
-            IEnumerable<Expression<Func<T, object>>> includeProperties = null, 
+            Expression<Func<T, bool>> filter = null,
+            Func<IQueryable<T>, IIncludableQueryable<T, object>> includeProperties = null, 
             bool disableCacheForQueryPlan = false)
         {
             IQueryable<T> query = dbSet;
             if (filter != null)
                 query = query.Where(filter);
-            foreach (var item in includeProperties ?? Enumerable.Empty<Expression<Func<T, object>>>())
-            {
-                query = query.Include(item);
-            }
+            if (includeProperties != null)
+                query = includeProperties(query);
             if (disableCacheForQueryPlan)
                 throw new NotImplementedException("Setting disable cache for query plan hasn't been impletemented yet.  Will come at a later date.  Please do not use this value.");
             return query;
@@ -77,7 +76,8 @@ namespace danielDevelops.Infrastructure
 
         public void Update(T entity,params Expression<Func<T,object>>[] changedProperties)
         {
-            dbSet.Attach(entity);
+            if (!IsAttached(entity))
+                dbSet.Attach(entity);
             context.UpdateAllPropertiesToValue(entity, "Updated", DateTime.Now);
             context.UpdateAllPropertiesToValue(entity, "Modified", DateTime.Now);
             context.UpdateAllPropertiesToValue(entity, "ModifiedBy", CurrentUser);
@@ -203,6 +203,10 @@ namespace danielDevelops.Infrastructure
                 property.SetValue(newEntity, property.GetValue(entity));
             }
             return newEntity;
+        }
+        private bool IsAttached(T entity)
+        {
+            return dbSet.Local.Any(t => t.Id == entity.Id);
         }
     }
 }

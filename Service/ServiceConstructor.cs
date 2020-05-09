@@ -1,5 +1,6 @@
 ﻿using danielDevelops.Cache;
 using danielDevelops.CommonInterfaces.Infrastructure;
+using Microsoft.EntityFrameworkCore.Query;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,8 +15,8 @@ namespace danielDevelops.Service
         public ServiceConstructor(ICacheContainer cacheContainer, 
             ICustomContext context, 
             string username, 
-            Expression<Func<T, bool>> cacheLoadFilter = null, 
-            IEnumerable<Expression<Func<T,object>>> loadAdditionalPropertiesInCache = null,
+            Expression<Func<T, bool>> cacheLoadFilter = null,
+            Func<IQueryable<T>, IIncludableQueryable<T, object>> includeInCache = null,
             int cacheTimeoutInMinutes = 10,
             bool isSharedContext = true)
         {
@@ -25,7 +26,7 @@ namespace danielDevelops.Service
             CacheLoadFilter = cacheLoadFilter;
             CacheTimoutInMinutes = cacheTimeoutInMinutes;
             Username = username;
-            IncludePropertiesInCache = loadAdditionalPropertiesInCache;
+            IncludePropertiesInCache = includeInCache;
         }
 
         public ICustomContext Context { get; private set; }
@@ -38,6 +39,6 @@ namespace danielDevelops.Service
         public int CacheTimoutInMinutes { get; private set; } = 10;
         public string Username { get; private set; }
 
-        public IEnumerable<Expression<Func<T, object>>> IncludePropertiesInCache { get; private set; }
+        public Func<IQueryable<T>, IIncludableQueryable<T, object>> IncludePropertiesInCache { get; private set; }
     }
 }

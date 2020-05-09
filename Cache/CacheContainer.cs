@@ -8,10 +8,6 @@ using System.Threading.Tasks;
 
 namespace danielDevelops.Cache
 {
-    public static class Container
-    { 
-        
-    }
     public class CacheContainer : ICacheContainer
     {
         readonly ConcurrentDictionary<string, IData<dynamic>> _cache = new ConcurrentDictionary<string, IData<dynamic>>();

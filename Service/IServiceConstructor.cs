@@ -1,5 +1,6 @@
 ﻿using danielDevelops.Cache;
 using danielDevelops.CommonInterfaces.Infrastructure;
+using Microsoft.EntityFrameworkCore.Query;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,6 @@ namespace danielDevelops.Service
         Expression<Func<T, bool>> CacheLoadFilter { get; }
         int CacheTimoutInMinutes { get; } 
         string Username { get; }
-        IEnumerable<Expression<Func<T,object>>> IncludePropertiesInCache { get; }
+        Func<IQueryable<T>, IIncludableQueryable<T, object>> IncludePropertiesInCache { get; }
     }
 }

@@ -11,7 +11,7 @@ namespace danielDevelops.Infrastructure
         public static string GetTableName<T>(this ICustomContext context) where T : class
         {
             var mapping = context.Model.FindEntityType(typeof(T)).Relational();
-            var tableName = mapping.TableName;
+            var tableName = $"[{mapping.Schema}].[{mapping.TableName}]";
             return tableName;
         }
 
