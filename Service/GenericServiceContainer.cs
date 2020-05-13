@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace danielDevelops.Context
+namespace danielDevelops.Service
 {
     public abstract class GenericServiceContainer : IDisposable
     {

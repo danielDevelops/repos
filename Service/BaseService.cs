@@ -1,6 +1,8 @@
 ﻿using danielDevelops.Cache;
 using danielDevelops.CommonInterfaces;
+using danielDevelops.CommonInterfaces.GenericRepository;
 using danielDevelops.CommonInterfaces.Infrastructure;
+using danielDevelops.CommonInterfaces.Infrastructure.GenericRepository;
 using danielDevelops.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using System;
@@ -26,7 +28,7 @@ namespace danielDevelops.Service
         private readonly Func<IQueryable<T>, IIncludableQueryable<T, object>> includePropertiesInCache;
         private readonly int cacheTimeoutInMinutes;
         protected readonly string CurrentUsername;
-        protected readonly IGenericRepository<T> Repo;
+        protected readonly ISqlGenericRepository<T> Repo;
         private readonly string cacheName = typeof(T).FullName;
         private readonly Func<ICustomContext, Task<IEnumerable<T>>> reloadMethod;
 
@@ -35,14 +37,14 @@ namespace danielDevelops.Service
             CurrentUsername = constructor.Username;
             Context = constructor.Context;
             IsSharedContext = constructor.IsSharedContext;
-            Repo = new GenericRepository<T>(this.Context, CurrentUsername);
+            Repo = new SqlGenericRepository<T>(this.Context, CurrentUsername);
             CacheContainer = constructor.CacheContainer;
             cacheLoadFilter = constructor.CacheLoadFilter;
             cacheTimeoutInMinutes = constructor.CacheTimoutInMinutes;
             includePropertiesInCache = constructor.IncludePropertiesInCache;
             reloadMethod = async (context) =>
             {
-                IGenericRepository<T> repo = new GenericRepository<T>(context, "System");
+                ISqlGenericRepository<T> repo = new SqlGenericRepository<T>(context, "System");
                 
                 var data = await repo.GetAsync(cacheLoadFilter, includePropertiesInCache);
                 var detachedData = data.Select(t => repo.CreateDetachedEntity(t)).ToList();
