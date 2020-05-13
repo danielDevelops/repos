@@ -12,6 +12,7 @@ namespace danielDevelops.CommonInterfaces.Infrastructure
     public interface ICustomContext : IDisposable
     {
         DbSet<TEntity> Set<TEntity>() where TEntity : class;
+        DbQuery<TEntity> Query<TEntity>() where TEntity : class;
         IModel Model { get; }
         ChangeTracker ChangeTracker { get; }
         EntityEntry<TEntity> Entry<TEntity>(TEntity entity) where TEntity : class;

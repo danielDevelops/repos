@@ -1,5 +1,7 @@
 ﻿using danielDevelops.CommonInterfaces;
 using danielDevelops.CommonInterfaces.Infrastructure;
+using danielDevelops.CommonInterfaces.Infrastructure.GenericRepository;
+using danielDevelops.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using System;
@@ -12,16 +14,13 @@ using System.Threading.Tasks;
 
 namespace danielDevelops.Infrastructure
 {
-    public class GenericRepository<T> : IGenericRepository<T> where T : class, IEntity,  new()
+    public class SqlGenericRepository<T> : GenericRepositoryBase<T>, ISqlGenericRepository<T> where T : class, IEntity,  new()
     {
-        readonly DbSet<T> dbSet;
-        readonly ICustomContext context;
         readonly string CurrentUser;
-        public GenericRepository(ICustomContext context, string currentUser)
+        public SqlGenericRepository(ICustomContext context, string currentUser)
+            : base(context)
         {
             CurrentUser = currentUser;
-            this.context = context;
-            dbSet = this.context.Set<T>();
         }
         public T Insert(T entity)
         {
@@ -162,13 +161,7 @@ namespace danielDevelops.Infrastructure
                 throw;
             }
         }
-        public void DetachAll()
-        {
-            foreach (var entry in context.ChangeTracker.Entries().ToList())
-            {
-                context.Entry(entry.Entity).State = EntityState.Detached;
-            }
-        }
+       
         public void Save()
         {
             this.SaveAsync().Wait();
@@ -179,34 +172,10 @@ namespace danielDevelops.Infrastructure
             var tableName = context.GetTableName<T>();
             await ExecuteSQLAsync($"TRUNCATE TABLE {tableName}", 60);
         }
-
-        public void Attach(T entity)
-        {
-            dbSet.Attach(entity);
-        }
-        public void Detach(T entity)
-        {
-            context.Entry(entity).State = EntityState.Detached;
-        }
-        public void DetachT()
-        {
-            var allItems = context.ChangeTracker.Entries<T>().ToList();
-            foreach (var item in allItems)
-                item.State = EntityState.Detached;
-        }
-     
-        public T CreateDetachedEntity(T entity)
-        {
-            var newEntity = (T)Activator.CreateInstance(typeof(T));
-            foreach (var property in newEntity.GetType().GetProperties())
-            {
-                property.SetValue(newEntity, property.GetValue(entity));
-            }
-            return newEntity;
-        }
         private bool IsAttached(T entity)
         {
             return dbSet.Local.Any(t => t.Id == entity.Id);
         }
+
     }
 }
