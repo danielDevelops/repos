@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace danielDevelops.CommonInterfaces.Infrastructure.GenericRepository
 {
-    public interface ISqlGenericRepository<T> : 
+    public interface IGenericRepository<T> : 
         ISelectRepository<T>, 
         ISelectOneRepository<T>, 
         IQueryExecutionRepository, 

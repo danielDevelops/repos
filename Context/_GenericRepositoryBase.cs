@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace danielDevelops.Context
 {
-    public class GenericRepositoryBase<T> : IEntityOperationsRepository<T> where T :class, new()
+    public abstract class GenericRepositoryBase<T> : IEntityOperationsRepository<T> where T :class, new()
     {
         protected readonly ICustomContext context;
         protected readonly DbSet<T> dbSet;

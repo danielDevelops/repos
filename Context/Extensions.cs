@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 
 namespace danielDevelops.Infrastructure
@@ -34,13 +35,13 @@ namespace danielDevelops.Infrastructure
             }
         }
 
-        public static IEnumerable<System.Data.SqlClient.SqlParameter> CreateParameterList(params object[] parameterObjects)
+        public static IEnumerable<T> CreateParameterList<T>(params object[] parameterObjects) where T : DbParameter, new()
         {
-            var parms = new List<System.Data.SqlClient.SqlParameter>();
+            var parms = new List<T>();
             var counter = 0;
             foreach (var item in parameterObjects)
             {
-                var parm = new System.Data.SqlClient.SqlParameter();
+                var parm = new T();
                 if (item == null)
                     throw new NullReferenceException("The underlying object parameter is null.  The best thing is I now know why MS has had such a tough time with this one...");
                 var type = item.GetType();

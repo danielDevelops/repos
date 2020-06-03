@@ -7,6 +7,7 @@
     <PackageId>danielDevelops.Context</PackageId>
     <Authors>danielDevelops.Context</Authors>
     <Product>danielDevelops.Context</Product>
+    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

@@ -7,6 +7,7 @@
     <PackageId>danielDevelops.Service</PackageId>
     <Authors>danielDevelops.Service</Authors>
     <Product>danielDevelops.Service</Product>
+    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

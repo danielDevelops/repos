@@ -4,6 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>danielDevelops.Cache</RootNamespace>
     <AssemblyName>danielDevelops.Cache</AssemblyName>
+    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

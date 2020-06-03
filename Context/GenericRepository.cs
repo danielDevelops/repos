@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
+using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -14,13 +14,18 @@ using System.Threading.Tasks;
 
 namespace danielDevelops.Infrastructure
 {
-    public class SqlGenericRepository<T> : GenericRepositoryBase<T>, ISqlGenericRepository<T> where T : class, IEntity,  new()
+    public class GenericRepository<T, RdbmsParameterType> 
+        : GenericRepositoryBase<T>, IGenericRepository<T> where T : class, IEntity,  new()
+        where RdbmsParameterType : DbParameter, new()
     {
         readonly string CurrentUser;
-        public SqlGenericRepository(ICustomContext context, string currentUser)
+        private readonly string parameterPrefix;
+
+        public GenericRepository(ICustomContext context, string currentUser, string parameterPrefix = "@")
             : base(context)
         {
             CurrentUser = currentUser;
+            this.parameterPrefix = parameterPrefix;
         }
         public T Insert(T entity)
         {
@@ -115,23 +120,31 @@ namespace danielDevelops.Infrastructure
             context.Database.SetCommandTimeout(new TimeSpan(0, 0, timeoutInSeconds));
             await context.Database.ExecuteSqlCommandAsync(sql);
         }
-        public async Task ExecuteStoredProcedureAsync(string sql,int timeoutInSecond = 30, params object[] parameters)
+
+        public async Task<IEnumerable<TT>> ExecuteStoreQueryAsync<TT>(string sql, int timeoutInSeconds = 30) where TT : class, new()
+        {
+            context.Database.SetCommandTimeout(new TimeSpan(0, 0, timeoutInSeconds));
+            var query = context.Set<TT>().FromSql(sql);
+            return await query.ToListAsync();
+        }
+
+        public async Task ExecuteStoreQueryAsync(string sql,int timeoutInSecond = 30, params object[] parameters)
         {
             context.Database.SetCommandTimeout(new TimeSpan(0, 0, timeoutInSecond));
             await context.Database.ExecuteSqlCommandAsync(sql, parameters);
         }
 
-        public async Task<IEnumerable<TT>> ExecuteStoredProcedureAsync<TT>(string sql,int timeoutInSeconds = 30, params SqlParameter[] parameters) where TT : class, new()
+        public async Task<IEnumerable<TT>> ExecuteStoreQueryAsync<TT>(string sql,int timeoutInSeconds = 30, params DbParameter[] parameters) where TT : class, new()
         {
             context.Database.SetCommandTimeout(new TimeSpan(0, 0, timeoutInSeconds));
             var query = context.Set<TT>().FromSql(sql, parameters);
             return await query.ToListAsync();
         }
 
-        public async Task<IEnumerable<TT>> ExecuteDynamicStoredProcedureAsync<TT>(string sprocName,int timeoutInSeconds = 30, params object[] parameters) where TT : class, new()
+        public async Task<IEnumerable<TT>> ExecuteStoreQueryAsync<TT>(string sprocName,int timeoutInSeconds = 30, params object[] parameters) where TT : class, new()
         {
-            var parms = Extensions.CreateParameterList(parameters);
-            return await ExecuteStoredProcedureAsync<TT>($"{sprocName} {string.Join(",", parms.Select(t => $"@{t.ParameterName}"))}", timeoutInSeconds, parms.ToArray());
+            var parms = Extensions.CreateParameterList<RdbmsParameterType>(parameters);
+            return await ExecuteStoreQueryAsync<TT>($"{sprocName} {string.Join(",", parms.Select(t => $"{parameterPrefix}{t.ParameterName}"))}", timeoutInSeconds, parms.ToArray());
         }
 
 

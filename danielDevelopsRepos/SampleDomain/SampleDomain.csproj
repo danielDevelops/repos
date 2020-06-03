@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>7.3</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Cache\danielDevelops.Cache.csproj" />
+    <ProjectReference Include="..\..\CommonInterfaces\danielDevelops.CommonInterfaces.csproj" />
+    <ProjectReference Include="..\..\Context\danielDevelops.Context.csproj" />
+    <ProjectReference Include="..\..\Service\danielDevelops.Service.csproj" />
+    <ProjectReference Include="..\SampleModels\SampleModels.csproj" />
+  </ItemGroup>
+
+</Project>
