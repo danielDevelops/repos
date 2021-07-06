@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace danielDevelops.CommonInterfaces.GenericRepository
 {
-    public interface IDeleteRepository<T> where T : class, IEntity, new()
+    public interface IDeleteRepository<T, EntityKeyType> where T : class, IEntity<EntityKeyType>, new()
     {
         void Delete(T entityToDelete);
         void Delete(object id);

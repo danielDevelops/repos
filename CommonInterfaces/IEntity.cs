@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace danielDevelops.CommonInterfaces
 {
-    public interface IEntity
+    public interface IEntity<EntityKeyType> 
     {
-        int Id { get; set;  }
+        EntityKeyType Id { get; set;  }
     }
 }

@@ -14,8 +14,9 @@ using System.Threading.Tasks;
 
 namespace danielDevelops.Infrastructure
 {
-    public class GenericRepository<T, RdbmsParameterType> 
-        : GenericRepositoryBase<T>, IGenericRepository<T> where T : class, IEntity,  new()
+    public class GenericRepository<T, RdbmsParameterType, EntityKeyType> 
+        : GenericRepositoryBase<T>, IGenericRepository<T, EntityKeyType> 
+        where T : class, IEntity<EntityKeyType>, new()
         where RdbmsParameterType : DbParameter, new()
     {
         readonly string CurrentUser;
@@ -118,26 +119,26 @@ namespace danielDevelops.Infrastructure
         public async Task ExecuteSQLAsync(string sql, int timeoutInSeconds = 30)
         {
             context.Database.SetCommandTimeout(new TimeSpan(0, 0, timeoutInSeconds));
-            await context.Database.ExecuteSqlCommandAsync(sql);
+            await context.Database.ExecuteSqlRawAsync(sql);
         }
 
         public async Task<IEnumerable<TT>> ExecuteStoreQueryAsync<TT>(string sql, int timeoutInSeconds = 30) where TT : class, new()
         {
             context.Database.SetCommandTimeout(new TimeSpan(0, 0, timeoutInSeconds));
-            var query = context.Set<TT>().FromSql(sql);
+            var query = context.Set<TT>().FromSqlRaw(sql);
             return await query.ToListAsync();
         }
 
         public async Task ExecuteStoreQueryAsync(string sql,int timeoutInSecond = 30, params object[] parameters)
         {
             context.Database.SetCommandTimeout(new TimeSpan(0, 0, timeoutInSecond));
-            await context.Database.ExecuteSqlCommandAsync(sql, parameters);
+            await context.Database.ExecuteSqlRawAsync(sql, parameters);
         }
 
         public async Task<IEnumerable<TT>> ExecuteStoreQueryAsync<TT>(string sql,int timeoutInSeconds = 30, params DbParameter[] parameters) where TT : class, new()
         {
             context.Database.SetCommandTimeout(new TimeSpan(0, 0, timeoutInSeconds));
-            var query = context.Set<TT>().FromSql(sql, parameters);
+            var query = context.Set<TT>().FromSqlRaw(sql, parameters);
             return await query.ToListAsync();
         }
 
@@ -187,7 +188,7 @@ namespace danielDevelops.Infrastructure
         }
         private bool IsAttached(T entity)
         {
-            return dbSet.Local.Any(t => t.Id == entity.Id);
+            return dbSet.Local.Any(t => t.Id.Equals(entity.Id));
         }
 
     }

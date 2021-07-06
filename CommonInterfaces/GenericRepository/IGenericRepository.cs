@@ -9,17 +9,17 @@ using System.Threading.Tasks;
 
 namespace danielDevelops.CommonInterfaces.Infrastructure.GenericRepository
 {
-    public interface IGenericRepository<T> : 
+    public interface IGenericRepository<T, EntityKeyType> : 
         ISelectRepository<T>, 
-        ISelectOneRepository<T>, 
+        ISelectOneRepository<T, EntityKeyType>, 
         IQueryExecutionRepository, 
         IBulkInsertRepository<T>,
-        IDeleteRepository<T>,
+        IDeleteRepository<T, EntityKeyType>,
         ISaveRespository,
         ISprocRepository,
         IUpdateRepository<T>,
         IEntityOperationsRepository<T>
-        where T: class, IEntity, new()
+        where T: class, IEntity<EntityKeyType>, new()
     {
 
     }

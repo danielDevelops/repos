@@ -20,7 +20,7 @@ namespace danielDevelops.Service
         Failure,
         Warning
     }
-    public abstract class BaseService<T> : IDisposable where T : class, IEntity, new()
+    public abstract class BaseService<T> : IDisposable where T : class, IEntity<int>, new()
     {
         protected readonly ICustomContext Context;
         protected readonly bool IsSharedContext = false;
@@ -29,7 +29,7 @@ namespace danielDevelops.Service
         private readonly Func<IQueryable<T>, IIncludableQueryable<T, object>> includePropertiesInCache;
         private readonly int cacheTimeoutInMinutes;
         protected readonly string CurrentUsername;
-        protected readonly IGenericRepository<T> Repo;
+        protected readonly IGenericRepository<T,int> Repo;
         private readonly string cacheName = typeof(T).FullName;
         private readonly Func<ICustomContext, Task<IEnumerable<T>>> reloadMethod;
 
@@ -38,14 +38,14 @@ namespace danielDevelops.Service
             CurrentUsername = constructor.Username;
             Context = constructor.Context;
             IsSharedContext = constructor.IsSharedContext;
-            Repo = new GenericRepository<T, SqlParameter>(this.Context, CurrentUsername);
+            Repo = new GenericRepository<T, SqlParameter, int>(this.Context, CurrentUsername);
             CacheContainer = constructor.CacheContainer;
             cacheLoadFilter = constructor.CacheLoadFilter;
             cacheTimeoutInMinutes = constructor.CacheTimoutInMinutes;
             includePropertiesInCache = constructor.IncludePropertiesInCache;
             reloadMethod = async (context) =>
             {
-                IGenericRepository<T> repo = new GenericRepository<T, SqlParameter>(context, "System");
+                IGenericRepository<T,int> repo = new GenericRepository<T, SqlParameter, int>(context, "System");
                 
                 var data = await repo.GetAsync(cacheLoadFilter, includePropertiesInCache);
                 var detachedData = data.Select(t => repo.CreateDetachedEntity(t)).ToList();

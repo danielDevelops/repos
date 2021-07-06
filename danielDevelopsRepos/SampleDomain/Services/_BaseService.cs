@@ -19,16 +19,16 @@ namespace SampleDomain.Services
         Warning
     }
 
-    public abstract class BaseService<T> : IDisposable where T : class, IEntity, new()
+    public abstract class BaseService<T> : IDisposable where T : class, IEntity<int>, new()
     {
         protected readonly ICustomContext Context;
         protected readonly string CurrentUsername;
-        protected readonly IGenericRepository<T> Repo;
+        protected readonly IGenericRepository<T,int> Repo;
         public BaseService(ICustomContext context, string currentUsername)
         {
             Context = context;
             CurrentUsername = currentUsername;
-            Repo = new GenericRepository<T, SqlParameter>(Context, CurrentUsername);
+            Repo = new GenericRepository<T, SqlParameter,int>(Context, CurrentUsername);
         }
 
 

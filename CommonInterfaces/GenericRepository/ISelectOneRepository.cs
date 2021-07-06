@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace danielDevelops.CommonInterfaces.GenericRepository
 {
-    public interface ISelectOneRepository<T> where T : class, IEntity, new()
+    public interface ISelectOneRepository<T, EntityKeyType> where T : class, IEntity<EntityKeyType>, new()
     {
         Task<T> GetByIDAsync(object id);
     }

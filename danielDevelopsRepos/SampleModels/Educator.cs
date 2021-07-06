@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SampleModels
 {
-    public class Educator : IEntity, IModInfo
+    public class Educator : IEntity<int>, IModInfo
     {
         public int Id { get; set; }
         public string FirstName { get; set; }
